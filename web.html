@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CARTOON WORLD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a0572; /* Deep Violet */
+            --secondary-color: #ab091e; /* Deep Red */
+            --accent-color: #FFD700; /* Gold */
+            --background-light: #f4f6f9;
+            --background-dark: #2c3e50; /* Dark Blue Gray */
+            --text-color-light: #333;
+            --text-color-dark: #ecf0f1;
+            --card-background: #ffffff;
+            --box-shadow-light: rgba(0, 0, 0, 0.08);
+            --box-shadow-hover: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right bottom, var(--background-light), #e0e6ed);
+            color: var(--text-color-light);
+            line-height: 1.7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: var(--text-color-dark);
+            padding: 1.8rem 0;
+            text-align: center;
+            box-shadow: 0 6px 15px var(--box-shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 1.5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin: 0 25px;
+        }
+
+        nav ul li a {
+            color: var(--text-color-dark);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.15rem;
+            transition: color 0.3s ease, transform 0.2s ease;
+            position: relative;
+            padding-bottom: 5px;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            display: block;
+            margin-top: 5px;
+            right: 0;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+            left: 0;
+            background: var(--accent-color);
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .search-container {
+            text-align: center;
+            padding: 30px 20px;
+            background-color: var(--background-dark);
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2);
+        }
+
+        .search-container input[type="text"] {
+            width: 60%;
+            max-width: 500px;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background-color: rgba(255, 255, 255, 0.95);
+            color: var(--text-color-light);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search-container input[type="text"]::placeholder {
+            color: #888;
+        }
+
+        .search-container input[type="text"]:focus {
+            box-shadow: 0 0 0 4px var(--accent-color), 0 4px 15px rgba(0,0,0,0.4);
+            background-color: white;
+            transform: scale(1.02);
+        }
+
+        main {
+            flex-grow: 1;
+        }
+
+        #video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 40px;
+            max-width: 1300px;
+            margin: 30px auto;
+        }
+
+        .video-item {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px var(--box-shadow-light);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer; /* Indicates it's clickable */
+        }
+
+        .video-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px var(--box-shadow-hover);
+        }
+
+        .video-thumbnail-container {
+            width: 100%;
+            height: 220px; /* Slightly taller thumbnails */
+            overflow: hidden;
+            position: relative;
+        }
+
+        .video-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .video-item:hover img {
+            transform: scale(1.08);
+        }
+        
+        .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-item:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-overlay svg {
+            fill: white;
+            width: 60px;
+            height: 60px;
+        }
+
+
+        .video-info {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-info h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        /* Video Player Modal Styling */
+        .video-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .video-modal-content {
+            position: relative;
+            background-color: var(--background-dark);
+            margin: auto;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation-name: animatetop;
+            animation-duration: 0.5s;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Ensure rounded corners */
+        }
+
+        .video-modal-header {
+            padding: 15px 25px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: var(--text-color-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .video-modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .video-modal-body {
+            padding: 20px;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-modal-body video {
+            width: 100%;
+            max-height: 80vh;
+            border-radius: 8px; /* Slightly rounded video player */
+        }
+
+        .close-button {
+            color: var(--text-color-dark);
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.2s ease;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        /* Animations */
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0}
+            to {opacity: 1}
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: var(--background-dark);
+            color: var(--text-color-dark);
+            margin-top: auto; /* Push footer to bottom */
+            font-size: 0.95rem;
+            box-shadow: 0 -6px 15px var(--box-shadow-light);
+        }
+        
+        footer p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+            nav ul li {
+                margin: 0 10px;
+            }
+            nav ul li a {
+                font-size: 1rem;
+            }
+            .search-container input[type="text"] {
+                width: 80%;
+                padding: 12px 20px;
+            }
+            #video-grid {
+                padding: 20px;
+                grid-template-columns: 1fr;
+            }
+            .video-item img {
+                height: 180px;
+            }
+            .video-modal-content {
+                width: 95%;
+            }
+            .video-modal-header h2 {
+                font-size: 1.4rem;
+            }
+            .close-button {
+                font-size: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            nav ul {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            nav ul li {
+                margin: 5px 8px;
+            }
+            .video-info h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CARTOON WORLD</h1>
+        <nav>
+            <ul>
+                <li><a href="#">HOME</a></li>
+                <li><a href="#">CATEGORIES</a></li>
+                <li><a href="#">LATEST</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="searchBar" placeholder="...SEARCH CARTOONS" dir="rtl">
+    </div>
+
+    <main id="video-grid">
+        </main>
+
+    <footer>
+        <p>© 2025 CARTOON WORLD.ALL RIGHTS RESERVED</p>
+    </footer>
+
+    <div id="videoModal" class="video-modal">
+        <div class="video-modal-content">
+            <div class="video-modal-header">
+                <h2 id="modalVideoTitle"></h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="video-modal-body">
+                <video id="player" controls autoplay></video>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoGrid = document.getElementById('video-grid');
+            const videoModal = document.getElementById('videoModal');
+            const closeButton = document.querySelector('.close-button');
+            const player = document.getElementById('player');
+            const modalVideoTitle = document.getElementById('modalVideoTitle');
+            const searchBar = document.getElementById('searchBar');
+
+            const cartoons = [
+                {
+                    title:"",
+                    thumbnail: "https://i.ytimg.com/vi/S-k_bK4WqA4/hqdefault.jpg",
+                    videoPath: "videos/tom-and-jerry.mp4"
+                },
+                {
+                    title:"",
+                    thumbnail: "https://i.ytimg.com/vi/9F0-R81mJ60/hqdefault.jpg",
+                    videoPath: "videos/looney-tunes.mp4"
+                },
+                {
+                    title: " ",
+                    thumbnail: "https://i.ytimg.com/vi/tM9W4mO-b_4/hqdefault.jpg",
+                    videoPath: "videos/donald-duck.mp4"
+                },
+                {
+                    title: "  ",
+                    thumbnail: "https://i.ytimg.com/vi/jcQ-fP19P3c/hqdefault.jpg",
+                    videoPath: "videos/madagascar.mp4"
+                },
+                {
+                    title:"",
+                    thumbnail: "https://i.ytimg.com/vi/UjM4L412S4A/hqdefault.jpg",
+                    videoPath: "videos/pink-panther.mp4"
+                },
+                {
+                    title: "",
+                    thumbnail: "https://i.ytimg.com/vi/22m2X-a3GvY/hqdefault.jpg",
+                    videoPath: "videos/daffy-duck.mp4"
+                },
+                {
+                    title: "",
+                    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXc/hqdefault.jpg", // Replace with a real Spongebob thumbnail
+                    videoPath: "videos/spongebob.mp4"
+                },
+                {
+                    title: "",
+                    thumbnail: "https://i.ytimg.com/vi/XgR_Q6x4W-w/hqdefault.jpg", // Replace
+                    videoPath: "videos/oggy.mp4"
+                }
+            ];
+
+            function createVideoCard(cartoon) {
+                const videoItem = document.createElement('div');
+                videoItem.classList.add('video-item');
+                // Data attributes for click handling and search
+                videoItem.dataset.videoPath = cartoon.videoPath;
+                videoItem.dataset.videoTitle = cartoon.title;
+
+                videoItem.innerHTML = `
+                    <div class="video-thumbnail-container">
+                        <img src="${cartoon.thumbnail}" alt="${cartoon.title} thumbnail">
+                        <div class="play-overlay">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>${cartoon.title}</h3>
+                    </div>
+                `;
+
+                // Add click listener to the entire card
+                videoItem.addEventListener('click', () => {
+                    modalVideoTitle.textContent = cartoon.title;
+                    player.src = cartoon.videoPath;
+                    videoModal.style.display = "flex"; // Show the modal
+                    player.play(); // Play the video
+                });
+
+                return videoItem;
+            }
+
+            // Function to display cartoons
+            function displayCartoons(cartoonsToDisplay) {
+                videoGrid.innerHTML = ''; // Clear current videos
+                if (cartoonsToDisplay.length === 0) {
+                    videoGrid.innerHTML = '<p style="text-align: center; width: 100%; grid-column: 1 / -1; font-size: 1.5rem; color: #666;">NOTHING FOUND.</p>';
+                } else {
+                    cartoonsToDisplay.forEach(cartoon => {
+                        const card = createVideoCard(cartoon);
+                        videoGrid.appendChild(card);
+                    });
+                }
+            }
+
+            // Initial display of all cartoons
+            displayCartoons(cartoons);
+
+            // Search bar functionality
+            searchBar.addEventListener('keyup', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                const filteredCartoons = cartoons.filter(cartoon => {
+                    return cartoon.title.toLowerCase().includes(searchTerm);
+                });
+                displayCartoons(filteredCartoons);
+            });
+
+            // Close button click event
+            closeButton.addEventListener('click', () => {
+                videoModal.style.display = "none";
+                player.pause();
+                player.currentTime = 0; // Reset video to start
+            });
+
+            // Click outside the modal to close it
+            window.addEventListener('click', (event) => {
+                if (event.target == videoModal) {
+                    videoModal.style.display = "none";
+                    player.pause();
+                    player.currentTime = 0;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
